@@ -9,6 +9,7 @@ import tensorflow as tf
 import cv2
 import numpy as np
 import base64
+import mediapipe as mp
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -42,6 +43,16 @@ else:
     supabase = None
 
 np.set_printoptions(suppress=True)
+
+# Initialize MediaPipe Hands
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+hands = mp_hands.Hands(
+    static_image_mode=False,
+    max_num_hands=1,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
 
 model = tf.keras.models.load_model("keras_model.h5", compile=False)
 
@@ -152,30 +163,88 @@ def generate_frames():
         if not ret:
             break
         
-        image = cv2.resize(frame, (224, 224), interpolation=cv2.INTER_AREA)
-        img_array = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
-        img_array = (img_array / 127.5) - 1
+        # Convert BGR to RGB for MediaPipe
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        prediction = model.predict(img_array, verbose=0)
-        prediction_array = prediction.flatten()
+        # Detect hands
+        results = hands.process(rgb_frame)
         
-        index = np.argmax(prediction_array)
-        class_name = class_names[index]
-        confidence = float(np.round(prediction_array[index] * 100, 2))
+        # Default prediction when no hand is detected
+        prediction_made = False
         
-        last_prediction = {"class": class_name, "confidence": confidence}
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                # Draw hand landmarks
+                mp_drawing.draw_landmarks(
+                    frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                
+                # Get bounding box coordinates
+                h, w, c = frame.shape
+                x_coords = [landmark.x * w for landmark in hand_landmarks.landmark]
+                y_coords = [landmark.y * h for landmark in hand_landmarks.landmark]
+                
+                x_min, x_max = int(min(x_coords)), int(max(x_coords))
+                y_min, y_max = int(min(y_coords)), int(max(y_coords))
+                
+                # Add padding around the hand
+                padding = 20
+                x_min = max(0, x_min - padding)
+                y_min = max(0, y_min - padding)
+                x_max = min(w, x_max + padding)
+                y_max = min(h, y_max + padding)
+                
+                # Draw bounding box (green rectangle)
+                cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                
+                # Extract hand region
+                hand_region = frame[y_min:y_max, x_min:x_max]
+                
+                if hand_region.size > 0:
+                    # Preprocess hand region for model
+                    try:
+                        image = cv2.resize(hand_region, (224, 224), interpolation=cv2.INTER_AREA)
+                        img_array = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
+                        img_array = (img_array / 127.5) - 1
+                        
+                        # Make prediction
+                        prediction = model.predict(img_array, verbose=0)
+                        prediction_array = prediction.flatten()
+                        
+                        index = np.argmax(prediction_array)
+                        class_name = class_names[index]
+                        confidence = float(np.round(prediction_array[index] * 100, 2))
+                        
+                        # Only update prediction if confidence is above threshold
+                        if confidence > 60:
+                            last_prediction = {"class": class_name, "confidence": confidence}
+                            prediction_made = True
+                            
+                            # Display prediction on frame
+                            label = f"{class_name} ({confidence}%)"
+                            cv2.putText(frame, label, (x_min, y_min - 10), 
+                                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                            
+                            # Save to database if high confidence and new detection
+                            if supabase and class_name != last_saved_class and confidence > 70:
+                                try:
+                                    supabase.table('recent_detections').insert({
+                                        "class_name": class_name,
+                                        "confidence": confidence,
+                                        "timestamp": datetime.utcnow().isoformat()
+                                    }).execute()
+                                    last_saved_class = class_name
+                                except:
+                                    pass
+                    except Exception as e:
+                        pass
         
-        if supabase and class_name != last_saved_class and confidence > 70:
-            try:
-                supabase.table('recent_detections').insert({
-                    "class_name": class_name,
-                    "confidence": confidence,
-                    "timestamp": datetime.utcnow().isoformat()
-                }).execute()
-                last_saved_class = class_name
-            except:
-                pass
+        # If no hand detected or no valid prediction, show waiting message
+        if not prediction_made and results.multi_hand_landmarks is None:
+            last_prediction = {"class": "No hand detected", "confidence": 0}
+        elif not prediction_made:
+            last_prediction = {"class": "Low confidence", "confidence": 0}
         
+        # Encode and stream frame
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
