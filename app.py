@@ -1,14 +1,10 @@
-import os
-# CRITICAL: Set this BEFORE importing TensorFlow to use legacy Keras
-# This is required for compatibility with older SavedModel format
-os.environ['TF_USE_LEGACY_KERAS'] = '1'
-
 from flask import Flask, render_template, Response, jsonify, request
 from flask_cors import CORS
 import tensorflow as tf
 import cv2
 import numpy as np
 import base64
+import os
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -24,22 +20,10 @@ load_dotenv()
 app = Flask(__name__)   
 CORS(app)
 
-# Initialize Supabase client (optional - app works without it)
-supabase_url = os.getenv("SUPABASE_URL")
-supabase_key = os.getenv("SUPABASE_KEY")
-
-if supabase_url and supabase_key:
-    try:
-        supabase: Client = create_client(supabase_url, supabase_key)
-        print("✅ Supabase connected successfully")
-    except Exception as e:
-        print(f"⚠️  Warning: Could not connect to Supabase: {e}")
-        print("   Detection will work but history won't be saved to database")
-        supabase = None
-else:
-    print("⚠️  Warning: Supabase credentials not found in .env file")
-    print("   Detection will work but history won't be saved to database")
-    supabase = None
+supabase: Client = create_client(
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY")
+)
 
 np.set_printoptions(suppress=True)
 
@@ -81,8 +65,6 @@ def predict():
 
 @app.route('/recent_detections', methods=['GET'])
 def get_recent_detections():
-    if not supabase:
-        return jsonify({"status": "success", "data": []})
     try:
         result = supabase.table('recent_detections').select('*').order('timestamp', desc=True).limit(10).execute()
         return jsonify({"status": "success", "data": result.data})
@@ -165,7 +147,7 @@ def generate_frames():
         
         last_prediction = {"class": class_name, "confidence": confidence}
         
-        if supabase and class_name != last_saved_class and confidence > 70:
+        if class_name != last_saved_class and confidence > 70:
             try:
                 supabase.table('recent_detections').insert({
                     "class_name": class_name,
