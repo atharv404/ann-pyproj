@@ -75,6 +75,9 @@ The model currently recognizes 20 Indian Sign Language gestures:
 ## Features
 
 - **Real-time ISL Detection**: Live webcam feed with instant sign language recognition
+- **Hand Detection with Bounding Box**: Uses MediaPipe to detect hands and show a green rectangle around the detected hand area
+- **Focused Gesture Recognition**: Processes only the hand region, improving accuracy and reducing false positives from background objects
+- **Visual Feedback**: See exactly where the system is detecting your hand with real-time bounding boxes and landmark visualization
 - **Text-to-Speech**: Convert detected signs to speech output
 - **Auto-Detection Logging**: Automatically saves detections with >70% confidence to Supabase
 - **Google Drive Upload**: Upload training datasets directly to Google Drive
@@ -89,6 +92,11 @@ The model currently recognizes 20 Indian Sign Language gestures:
 - Supabase account (optional - for detection logging)
 
 **Note**: The app works without Supabase or Google Drive configuration. These are optional features.
+
+**New**: The system now uses MediaPipe for hand detection, which provides:
+- Accurate hand tracking with visible bounding boxes
+- Better gesture recognition by focusing only on hand regions
+- Reduced false positives from background objects
 
 ## Installation
 
