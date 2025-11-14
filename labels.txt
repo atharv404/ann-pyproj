@@ -4,3 +4,17 @@
 3 Sorry
 4 Thirsty
 5 Eat
+6 Thank You
+7 Yes
+8 No
+9 Please
+10 Help
+11 Good
+12 Bad
+13 Stop
+14 Go
+15 Come
+16 Sit
+17 Stand
+18 Hello
+19 Goodbye

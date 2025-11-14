@@ -48,19 +48,36 @@ For detailed instructions, see **[HOW_TO_RUN.md](HOW_TO_RUN.md)**
 
 ---
 
-## Supported Gestures (6 total)
+## Supported Gestures (20 total)
 
-The model currently recognizes 6 Indian Sign Language gestures:
+The model currently recognizes 20 Indian Sign Language gestures:
 1. **Namaste** - Traditional Indian greeting
 2. **Good Morning** - Morning greeting
 3. **Where?** - Question gesture
 4. **Sorry** - Apology gesture
 5. **Thirsty** - Need water
 6. **Eat** - Food/eating
+7. **Thank You** - Expressing gratitude
+8. **Yes** - Affirmation
+9. **No** - Negation
+10. **Please** - Polite request
+11. **Help** - Request for assistance
+12. **Good** - Positive feedback
+13. **Bad** - Negative feedback
+14. **Stop** - Halt action
+15. **Go** - Movement direction
+16. **Come** - Invitation to approach
+17. **Sit** - Seating action
+18. **Stand** - Standing action
+19. **Hello** - General greeting
+20. **Goodbye** - Farewell
 
 ## Features
 
 - **Real-time ISL Detection**: Live webcam feed with instant sign language recognition
+- **Hand Detection with Bounding Box**: Uses MediaPipe to detect hands and show a green rectangle around the detected hand area
+- **Focused Gesture Recognition**: Processes only the hand region, improving accuracy and reducing false positives from background objects
+- **Visual Feedback**: See exactly where the system is detecting your hand with real-time bounding boxes and landmark visualization
 - **Text-to-Speech**: Convert detected signs to speech output
 - **Auto-Detection Logging**: Automatically saves detections with >70% confidence to Supabase
 - **Google Drive Upload**: Upload training datasets directly to Google Drive
@@ -75,6 +92,11 @@ The model currently recognizes 6 Indian Sign Language gestures:
 - Supabase account (optional - for detection logging)
 
 **Note**: The app works without Supabase or Google Drive configuration. These are optional features.
+
+**New**: The system now uses MediaPipe for hand detection, which provides:
+- Accurate hand tracking with visible bounding boxes
+- Better gesture recognition by focusing only on hand regions
+- Reduced false positives from background objects
 
 ## Installation
 

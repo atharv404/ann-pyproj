@@ -4,6 +4,7 @@ opencv-python
 numpy
 tensorflow
 tf_keras
+mediapipe
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
