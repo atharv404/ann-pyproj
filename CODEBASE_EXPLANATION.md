@@ -92,11 +92,11 @@ import numpy as np
 ### 2. Model and Labels Loading
 
 ```python
-model = tf.keras.models.load_model("model.savedmodel")
+model = tf.keras.models.load_model("keras_model.h5", compile=False)
 ```
 Loads the pre-trained TensorFlow model. The model:
 - Input: 224x224x3 RGB images (normalized to [-1, 1])
-- Output: 6 probabilities (one per gesture class)
+- Output: 20 probabilities (one per gesture class)
 - Architecture: MobileNetV2-based (efficient for real-time)
 
 ```python
@@ -106,7 +106,7 @@ with open("labels.txt", "r") as f:
 Parses labels.txt to extract class names. Each line has format: `<index> <class_name>`
 - Splits on first space: `split(' ', 1)`
 - Takes second part `[1]`: the class name
-- Result: `['Namaste', 'Good Morning', 'Where?', 'Sorry', 'Thirsty', 'Eat']`
+- Result: `['Namaste', 'Good Morning', 'Where?', 'Sorry', 'Thirsty', 'Eat', 'Thank You', 'Yes', 'No', 'Please', 'Help', 'Good', 'Bad', 'Stop', 'Go', 'Come', 'Sit', 'Stand', 'Hello', 'Goodbye']`
 
 ### 3. Flask Routes (API Endpoints)
 
@@ -397,9 +397,9 @@ Dense Layer (128 units, ReLU)
     ↓
 Dropout (0.5)
     ↓
-Output Layer (6 units, Softmax)
+Output Layer (20 units, Softmax)
     ↓
-Probabilities: [P(Namaste), P(Good Morning), ..., P(Eat)]
+Probabilities: [P(Namaste), P(Good Morning), ..., P(Goodbye)]
 ```
 
 ### Why MobileNetV2?
@@ -436,7 +436,7 @@ img_array = (img_array / 127.5) - 1
 
 ```python
 prediction = model.predict(img_array)
-# Returns: [[0.02, 0.05, 0.01, 0.85, 0.03, 0.04]]
+# Returns: [[0.02, 0.05, 0.01, 0.85, 0.03, 0.04, ...]]  # 20 values
 
 # Interpretation:
 # Index 0 (Namaste):      2% confident
@@ -445,6 +445,7 @@ prediction = model.predict(img_array)
 # Index 3 (Sorry):       85% confident ← Predicted class
 # Index 4 (Thirsty):      3% confident
 # Index 5 (Eat):          4% confident
+# ... (and so on for all 20 classes)
 
 # Get predicted class
 index = np.argmax(prediction)  # 3
@@ -628,7 +629,7 @@ Displays in UI + recent history table
 
 ### Issue: Model loads but predictions are random
 **Cause**: Model-label mismatch
-**Solution**: Ensure labels.txt has exactly 6 lines matching model output classes
+**Solution**: Ensure labels.txt has exactly 20 lines matching model output classes (keras_model.h5 has 20 classes)
 
 ### Issue: Camera permission denied
 **Cause**: Browser security

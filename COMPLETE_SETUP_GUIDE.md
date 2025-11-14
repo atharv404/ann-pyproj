@@ -6,16 +6,30 @@ This document explains the issues found and how they were fixed.
 
 ### Issues Identified and Fixed
 
-1. **Model-Label Mismatch (CRITICAL)**
-   - **Problem**: The TensorFlow model has 6 output classes, but labels.txt contained 20 labels
-   - **Impact**: Incorrect gesture predictions - model would predict class 0-5, but code would map it to wrong label (e.g., class 3 → "Sorry" instead of intended gesture)
-   - **Fix**: Updated labels.txt to contain only the 6 labels matching model output classes:
+1. **Model-Label Mismatch (FIXED)**
+   - **Previous Issue**: The TensorFlow model had 6 output classes but labels.txt contained 20 labels
+   - **Temporary Fix**: Labels were reduced to 6, but this reduced accuracy
+   - **Current Fix**: Using the original keras_model.h5 (20 classes) with all 20 labels for better accuracy:
      - 0: Namaste
      - 1: Good Morning  
      - 2: Where?
      - 3: Sorry
      - 4: Thirsty
      - 5: Eat
+     - 6: Thank You
+     - 7: Yes
+     - 8: No
+     - 9: Please
+     - 10: Help
+     - 11: Good
+     - 12: Bad
+     - 13: Stop
+     - 14: Go
+     - 15: Come
+     - 16: Sit
+     - 17: Stand
+     - 18: Hello
+     - 19: Goodbye
 
 2. **TensorFlow/Keras Compatibility Issue**
    - **Problem**: The model was saved in older SavedModel format incompatible with Keras 3

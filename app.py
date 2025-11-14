@@ -43,7 +43,7 @@ else:
 
 np.set_printoptions(suppress=True)
 
-model = tf.keras.models.load_model("model.savedmodel")
+model = tf.keras.models.load_model("keras_model.h5", compile=False)
 
 with open("labels.txt", "r") as f:
     class_names = [line.strip().split(' ', 1)[1] for line in f.readlines()]
