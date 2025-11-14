@@ -1,0 +1,20 @@
+0 Namaste
+1 Good Morning
+2 Where?
+3 Sorry
+4 Thirsty
+5 Eat
+6 Water
+7 Name
+8 Mine
+9 I
+10 Need
+11 You
+12 Home
+13 with
+14 Stop
+15 Happy birthday
+16 How are you?
+17 Good Bye
+18 Write
+19 Promise
