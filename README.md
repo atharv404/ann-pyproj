@@ -2,6 +2,62 @@
 
 A real-time Indian Sign Language (ISL) detection system using TensorFlow and Flask with automatic detection logging and Google Drive integration.
 
+## 🚨 IMPORTANT: Recent Fixes
+
+**Critical issues have been identified and fixed:**
+1. ✅ **Model-Label Mismatch**: Model had 6 classes but labels.txt had 20 - causing incorrect gesture predictions
+2. ✅ **TensorFlow Compatibility**: Added legacy Keras support for model loading
+3. ✅ **Environment Setup**: Added .env.example and made Supabase optional
+
+**The app now works correctly!** See guides below for details.
+
+---
+
+## 📚 Documentation
+
+This project now includes comprehensive documentation:
+
+- **[HOW_TO_RUN.md](HOW_TO_RUN.md)** - 🚀 **START HERE** - Step-by-step guide to run locally
+- **[COMPLETE_SETUP_GUIDE.md](COMPLETE_SETUP_GUIDE.md)** - 🔧 Detailed troubleshooting and explanations
+- **[CODEBASE_EXPLANATION.md](CODEBASE_EXPLANATION.md)** - 📖 Complete code walkthrough and architecture
+- **[SETUP_GOOGLE_DRIVE.md](SETUP_GOOGLE_DRIVE.md)** - ☁️ Optional: Google Drive upload setup
+- **[SUPABASE_SETUP.md](SUPABASE_SETUP.md)** - 🗄️ Optional: Database configuration
+
+---
+
+## ⚡ Quick Start
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/atharv404/ann-pyproj.git
+cd ann-pyproj
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Run the application
+python app.py
+
+# 4. Open in browser
+# http://127.0.0.1:5000
+```
+
+**That's it!** The app works without additional configuration (Supabase is optional).
+
+For detailed instructions, see **[HOW_TO_RUN.md](HOW_TO_RUN.md)**
+
+---
+
+## Supported Gestures (6 total)
+
+The model currently recognizes 6 Indian Sign Language gestures:
+1. **Namaste** - Traditional Indian greeting
+2. **Good Morning** - Morning greeting
+3. **Where?** - Question gesture
+4. **Sorry** - Apology gesture
+5. **Thirsty** - Need water
+6. **Eat** - Food/eating
+
 ## Features
 
 - **Real-time ISL Detection**: Live webcam feed with instant sign language recognition
@@ -15,8 +71,10 @@ A real-time Indian Sign Language (ISL) detection system using TensorFlow and Fla
 
 - Python 3.8 or higher
 - Webcam
-- Google account (for Drive upload feature)
-- Supabase account (for detection logging)
+- Google account (optional - for Drive upload feature)
+- Supabase account (optional - for detection logging)
+
+**Note**: The app works without Supabase or Google Drive configuration. These are optional features.
 
 ## Installation
 
